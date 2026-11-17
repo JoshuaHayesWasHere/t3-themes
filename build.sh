@@ -4,8 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 id=bk-navy-silver label="Blade Silver" hex="#d4dcec" surf="#1f2840" fg="#eef2fa"
-css=$(sed "s/__HEX__/$hex/" src/css.tmpl)
-jq --arg n "Brave Kitty · Navy · $label" --arg a "$hex" --arg s "$surf" --arg f "$fg" --arg css "$css" \
+tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+sed "s/__HEX__/$hex/" src/css.tmpl > "$tmp"
+jq --arg n "Brave Kitty · Navy · $label" --arg a "$hex" --arg s "$surf" --arg f "$fg" --rawfile css "$tmp" \
   '.name=$n | .accent=$a | .css=$css | .colors += {accent:$a,focus:$a,accentSurface:$s,accentSurfaceForeground:$f,searchMatchActiveBackground:$a,terminalCursor:$a,sidebarRowSelected:$s}' \
   src/navy_base.json > "dist/$id.json"
 cp assets/navy_flop.webp "dist/$id.webp"
